@@ -83,10 +83,17 @@
   </div>
 
   <div class="contentC">
+    <tr>
       <th>Duty[%]</th>
       <label for="duty"></label>
       <td><input type="number" id="duty" readonly></td>
     </tr>
+
+    <tr>
+      <th>Vripple[uF]</th>
+      <td><input type="number" id="Vripplre" value=""></td>
+    </tr>
+    
   </div>
 </div>
 
@@ -127,11 +134,8 @@
     main();
 </script>
 
-
-
-  </div>
 </div>
-
+</div>
 
 <script type="module">
     import init, { duty_function } from './pkg/wasm_dcdc.js';
