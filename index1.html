@@ -72,14 +72,7 @@
 
 <div class="right">
   <div class="contentB">
-    <form id="inputForm">
-        <label for="slope">傾き (a):</label>
-        <input type="number" id="slope" value="1" step="0.1">
-        <label for="intercept">切片 (b):</label>
-        <input type="number" id="intercept" value="0" step="0.1">
-        <button type="submit">描画</button>
-    </form>
-    <canvas id="myCanvas" width="400" height="200" style="border:1px solid #000;"></canvas>
+    <canvas id="myCanvas" width="2000" height="1000" style="border:1px solid #000;"></canvas>
   </div>
 
   <div class="contentC">
@@ -93,7 +86,7 @@
       <th>Vripple[uF]</th>
       <td><input type="number" id="Vripplre" value=""></td>
     </tr>
-    
+
     <tr>
       <th>ontime[us]</th>
       <td><input type="number" id="ontime" value=""></td>
@@ -102,12 +95,12 @@
   </div>
 </div>
 
-<script type="module">
+
+<!-- <script type="module">
     import init, { linear_function } from './pkg/wasm_dcdc.js';
 
     async function main() {
         await init(); // Rust-WASMモジュールの初期化
-
         const canvas = document.getElementById("myCanvas");
         const ctx = canvas.getContext("2d");
         const form = document.getElementById("inputForm");
@@ -137,36 +130,55 @@
     }
 
     main();
-</script>
+</script> -->
 
 </div>
 </div>
 
 <script type="module">
-    import init, { duty_function } from './pkg/wasm_dcdc.js';
+    import init, { wasm_dccal_result } from './pkg/wasm_dcdc.js';
 
   async function main() {
       await init(); // Rust-WASMモジュールの初期化
 
-      const vin = document.getElementById("vin");
-      const vout = document.getElementById("vout");
-      const duty = document.getElementById("duty");
+      const vinInput = document.getElementById("vin");
+      const voutInput = document.getElementById("vout");
+      const ioutInput = document.getElementById("iout");
+      const fswInput = document.getElementById("fsw");
+      const indInput = document.getElementById("ind");
 
-      const duty_cal = () => {
-                const vin1 = parseFloat(vin.value) || 0; // Aの値
-                const vout1 = parseFloat(vout.value) || 0; // Bの値
-                const duty1 = duty_function(vin1, vout1); // Rustで計算
-                //console.log(duty1);
-                const rDuty = Math.round(duty1 * 100) / 100; //丸め込み
-                duty.value = rDuty; // Xに結果を表示
-            };
+      const dccal = () => {
+        //入力値の数値変換
+        const vin = parseFloat(vinInput.value) || 0;
+        const vout = parseFloat(voutInput.value) || 0;
+        const iout = parseFloat(ioutInput.value) || 0;
+        const fsw = parseFloat(fswInput.value) * Math.pow(10, 3) || 0;
+        const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
+
+        const result = wasm_dccal_result(vin, vout, iout, fsw, ind);
+        console.log("Duty Cycle:", result.duty);
+        console.log("Period:", result.period);
+        console.log("On Time:", result.ontime);
+        console.log("dIL ON:", result.dil_on);
+        console.log("dIL OFF:", result.dil_off);
+        console.log("intercept ON:", result.intercept_on);
+        console.log("intercept OFF:", result.intercept_off);
+        console.log("Current Top:", result.current_top);
+        console.log("Current Bottom:", result.current_bottom);
+        console.log([result.duty, result.period, result.ontime, result.dil_on, result.dil_off, result.intercept_on, result.intercept_off, result.current_top, result.current_bottom]);
+              
+        const dutyOut = Math.round(result.duty * 100) / 100; //丸め込み
+        duty.value = dutyOut*100; // Xに結果を表示 
+        };
           
-
-          // イベントリスナーを登録
-          vin.addEventListener("input", duty_cal);
-          vout.addEventListener("input", duty_cal);
+        // イベントリスナー
+        vinInput.addEventListener("input", dccal);
+        voutInput.addEventListener("input", dccal);
+        ioutInput.addEventListener("input", dccal);
+        fswInput.addEventListener("input", dccal);
+        indInput.addEventListener("input", dccal);
         }
-main();
+    main().catch(console.error);
 </script>
 
 <footer>
