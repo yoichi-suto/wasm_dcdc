@@ -48,8 +48,14 @@
         </tr>
        
         <tr>
-          <th>fsw[kHz]</th>
-          <td><input type="number" id="fsw" value="400"></td>
+          <th>fsw</th>
+          <td>
+            <input type="radio" name="fsw" id="fsw" value="400">400kHz
+            <label class="check_fsw"></label>
+
+            <input type="radio" name="fsw" id="fsw" value="2200">2.2MHz
+            <label class="check_fsw"></label>  
+          </td>
         </tr>
 
         <tr>
@@ -76,63 +82,30 @@
   </div>
 
   <div class="contentC">
+    <table class="table2">
+
     <tr>
       <th>Duty[%]</th>
       <label for="duty"></label>
-      <td><input type="number" id="duty" readonly></td>
+      <td><input type="number" id="duty" readonly class="no-spin"></td>
     </tr>
 
     <tr>
-      <th>Vripple[uF]</th>
-      <td><input type="number" id="Vripplre" value=""></td>
+      <th>On time[us]</th>
+      <td><input type="number" id="ontime" readonly class="no-spin"></td>
     </tr>
 
     <tr>
-      <th>ontime[us]</th>
-      <td><input type="number" id="ontime" value=""></td>
+      <th>Peak Inductor Current[A]</th>
+      <td><input type="number" id="peak_current" readonly class="no-spin"></td>
+    </tr>
+
+    <tr>
+      <th>Curren Ripple[A]</th>
+      <td><input type="number" id="Current_ripple" readonly class="no-spin"></td>
     </tr>
 
   </div>
-</div>
-
-
-<!-- <script type="module">
-    import init, { linear_function } from './pkg/wasm_dcdc.js';
-
-    async function main() {
-        await init(); // Rust-WASMモジュールの初期化
-        const canvas = document.getElementById("myCanvas");
-        const ctx = canvas.getContext("2d");
-        const form = document.getElementById("inputForm");
-
-        // 描画関数
-        function drawLine(a, b) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Canvasをクリア
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - linear_function(a, b, 0)); // Y軸を反転
-            ctx.lineTo(canvas.width, canvas.height - linear_function(a, b, canvas.width));
-            ctx.strokeStyle = "blue";
-            ctx.stroke();
-        }
-
-        // フォーム送信時の処理
-        form.addEventListener("submit", (event) => {
-            event.preventDefault(); // ページリロードを防止
-
-            const a = parseFloat(document.getElementById("slope").value); // 傾き
-            const b = parseFloat(document.getElementById("intercept").value); // 切片
-
-            drawLine(a, b); // 入力値で描画
-        });
-
-        // 初期描画
-        drawLine(1, 0);
-    }
-
-    main();
-</script> -->
-
-</div>
 </div>
 
 <script type="module">
@@ -167,24 +140,67 @@
         console.log("Current Bottom:", result.current_bottom);
         console.log([result.duty, result.period, result.ontime, result.dil_on, result.dil_off, result.intercept_on, result.intercept_off, result.current_top, result.current_bottom]);
               
-        const dutyOut = Math.round(result.duty * 100) / 100; //丸め込み
-        duty.value = dutyOut*100; // Xに結果を表示 
+        //const dutyOut = Math.round(result.duty * 100) / 100;
+        //duty.value = dutyOut*100;
+       
+        const dutyOut = (result.duty) * Math.pow(10, 2) || 0;
+        duty.value = dutyOut.toFixed(1);
+
+        const ontimeOut = (result.ontime) * Math.pow(10, 6) || 0;
+        ontime.value = ontimeOut.toFixed(2);
+        
+        const Current_topOut = (result.current_top) || 0;
+        peak_current.value = Current_topOut.toFixed(2);
+
+        const Current_rippleOut = (result.current_top - result.current_bottom )|| 0;
+        Current_ripple.value = Current_rippleOut.toFixed(2);
         };
           
         // イベントリスナー
         vinInput.addEventListener("input", dccal);
         voutInput.addEventListener("input", dccal);
         ioutInput.addEventListener("input", dccal);
-        fswInput.addEventListener("input", dccal);
+        fswInput.addEventListener("change", dccal);
         indInput.addEventListener("input", dccal);
         }
     main().catch(console.error);
 </script>
 
-<footer>
-  <div id="footer"></div>
-  <center>rev0.0.1</center>
-</footer>
+<script type="module">
+    import init, { Charts } from './pkg/wasm_dcdc.js';
+
+    async function main() {
+        await init(); // Rust-WASMモジュールの初期化
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+        const form = document.getElementById("inputForm");
+
+        // 描画関数
+        function drawLine(a, b) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Canvasをクリア
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - linear_function(a, b, 0)); // Y軸を反転
+            ctx.lineTo(canvas.width, canvas.height - linear_function(a, b, canvas.width));
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+        }
+
+        // フォーム送信時の処理
+        form.addEventListener("submit", (event) => {
+            event.preventDefault(); // ページリロードを防止
+
+            const a = parseFloat(document.getElementById("slope").value); // 傾き
+            const b = parseFloat(document.getElementById("intercept").value); // 切片
+
+            drawLine(a, b); // 入力値で描画
+        });
+
+        // 初期描画
+        drawLine(1, 0);
+    }
+
+    main();
+</script>
 
 </body>
 </html>

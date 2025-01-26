@@ -4,8 +4,6 @@ use plotters::prelude::*;
 use plotters_canvas::CanvasBackend;
 use web_sys::HtmlCanvasElement;
 
-
-
 /* pub fn draw<T:Filter>(canvas:HtmlCanvasElement,lpf_rc:T,time:i32,unit_prefix:&str)->DrawResult<()>{
     let font=("sans-serif",20.0).into_font();
     let area=CanvasBackend::with_canvas_object(canvas).unwrap()
