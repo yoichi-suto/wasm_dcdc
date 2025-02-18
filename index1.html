@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<header>
+  <meta charset="UTF-8">
+  <meta name="viewport" scontent="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="./style1.css">
+  <title>DC-DC simlation</title>
+  <h2 class="heading-6">DC-DC simlator on Wasm+Rust</h2><br>
+
+</header>
+
+<body>
+<div class="main">
+  <div class="contentA">
+
+      <table class="table1">
+        <tr>
+          <th scope="col">Series</th>
+          <th scope="col">
+            <select name="series" size="1">
+              <option>S-19912/3</option>
+              <option>S-19914/5</option>
+              <option>S-19917/07</option>
+              </select>
+          </th>
+        </tr>
+
+        <tr>
+          <th colspan="2">Condition</th>
+        </tr>
+
+        <tr>
+          <th>VIN[V]</th>
+          <label for="vin"></label>
+          <td><input type="number" id="vin" value="12"></td>
+        </tr>
+
+        <tr>
+          <th>VOUT[V]</th>
+          <label for="vout"></label>
+          <td><input type="number" id="vout" value="5"></td>
+        </tr>
+
+        <tr>
+          <th>IOUT[A]</th>
+          <td><input type="number" id="iout" value="1"></td>
+        </tr>
+       
+        <tr>
+          <th>fsw</th>
+          <td>
+            <input type="radio" name="fsw" id="fsw_400" value="400" checked>400kHz
+            <label class="check_fsw" for="fsw_400"></label>
+        
+            <input type="radio" name="fsw" id="fsw_2200" value="2200">2.2MHz
+            <label class="check_fsw" for="fsw_2200"></label>  
+          </td>
+        </tr>
+
+        <tr>
+          <th colspan="2">External Compornents</th>
+        </tr>
+
+        <tr>
+          <th>L[uH]</th>
+          <td><input type="number" id="ind" value="6.8"></td>
+        </tr>
+       
+        <tr>
+          <th>Cout[uF]</th>
+          <td><input type="number" id="cout" value="10"></td>
+        </tr>
+
+      </table>
+</div>
+
+
+<div class="right">
+  <div class="contentB">
+    <canvas id="canvas" width="5000" height="3000" style="border:1px solid #000;"></canvas>
+  </div>
+
+  <div class="contentC">
+    <table class="table2">
+
+    <tr>
+      <th>Duty[%]</th>
+      <label for="duty"></label>
+      <td><input type="number" id="duty" readonly class="no-spin"></td>
+    </tr>
+
+    <tr>
+      <th>On time[us]</th>
+      <td><input type="number" id="ontime" readonly class="no-spin"></td>
+    </tr>
+
+    <tr>
+      <th>Peak Inductor Current[A]</th>
+      <td><input type="number" id="peak_current" readonly class="no-spin"></td>
+    </tr>
+
+    <tr>
+      <th>Curren Ripple[A]</th>
+      <td><input type="number" id="Current_ripple" readonly class="no-spin"></td>
+    </tr>
+
+  </div>
+</div>
+
+<script type="module">
+    import init, { wasm_dccal_result, Chart } from './pkg/wasm_dcdc.js';
+
+    async function main() {
+      await init(); // Rust-WASMモジュールの初期化
+
+      const vinInput = document.getElementById("vin");
+      const voutInput = document.getElementById("vout");
+      const ioutInput = document.getElementById("iout");
+      const fswRadios = document.querySelectorAll('input[name="fsw"]');
+      const indInput = document.getElementById("ind");
+      const canvas = document.getElementById("canvas");
+      let dil_on, dil_off, intercept_on, intercept_off, period, ontime_cha;
+
+      const dccal = () => {
+        //入力値の数値変換
+        const vin = parseFloat(vinInput.value) || 0;
+        const vout = parseFloat(voutInput.value) || 0;
+        const iout = parseFloat(ioutInput.value) || 0;
+
+        let fsw = 0;
+        fswRadios.forEach(radio => {
+            if (radio.checked) {
+                fsw = parseFloat(radio.value) * Math.pow(10, 3); // kHz → Hz に変換
+            }
+        });
+
+        const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
+        const result = wasm_dccal_result(vin, vout, iout, fsw, ind);
+        //console.log("Duty Cycle:", result.duty);
+        console.log([result.duty, result.period, result.ontime, result.dil_on, result.dil_off, result.intercept_on, result.intercept_off, result.current_top, result.current_bottom]);
+       
+        //出力
+        const dutyOut = (result.duty) * Math.pow(10, 2) || 0;
+        duty.value = dutyOut.toFixed(1);
+
+        const ontimeOut = (result.ontime) * Math.pow(10, 6) || 0;
+        ontime.value = ontimeOut.toFixed(2);
+        
+        const Current_topOut = (result.current_top) || 0;
+        peak_current.value = Current_topOut.toFixed(2);
+
+        const Current_rippleOut = (result.current_top - result.current_bottom )|| 0;
+        Current_ripple.value = Current_rippleOut.toFixed(2);
+        
+        //for chart
+        dil_on = result.dil_on;
+        dil_off = result.dil_off;
+        intercept_on = result.intercept_on;
+        intercept_off = result.intercept_off;
+        ontime_cha = (result.ontime);
+        period = (result.period) * Math.pow(10, 6) || 0;
+
+        console.log("dil_on_chart:", dil_on);
+        console.log("dil_off_chart:", dil_off);
+        console.log("intercept_on:", intercept_on);
+        console.log("intercept_off:", intercept_off);
+        console.log("ontime_chart:", ontime_cha);
+        console.log("period_chart:", period);
+
+        //グラフ描写
+        Chart.coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, 3.0, "u");
+        };
+
+        //イベントリスナー
+        vinInput.addEventListener("input", dccal);
+        voutInput.addEventListener("input", dccal);
+        ioutInput.addEventListener("input", dccal);
+        indInput.addEventListener("input", dccal);
+        
+        fswRadios.forEach(radio => {
+        radio.addEventListener("change", dccal);
+        });
+        
+        dccal();
+    }
+
+    main().catch(console.error);
+</script>
+
+</body>
+</html>
