@@ -50,11 +50,11 @@
         <tr>
           <th>fsw</th>
           <td>
-            <input type="radio" name="fsw" id="fsw_400" value="400" checked>400kHz
-            <label class="check_fsw" for="fsw_400"></label>
-        
-            <input type="radio" name="fsw" id="fsw_2200" value="2200">2.2MHz
-            <label class="check_fsw" for="fsw_2200"></label>  
+            <input type="radio" name="fsw" id="fsw" value="400" checked>400kHz
+            <label class="check_fsw"></label>
+
+            <input type="radio" name="fsw" id="fsw" value="2200">2.2MHz
+            <label class="check_fsw"></label>  
           </td>
         </tr>
 
@@ -78,7 +78,7 @@
 
 <div class="right">
   <div class="contentB">
-    <canvas id="canvas" width="5000" height="3000" style="border:1px solid #000;"></canvas>
+    <canvas id="myCanvas" width="2000" height="1000" style="border:1px solid #000;"></canvas>
   </div>
 
   <div class="contentC">
@@ -109,7 +109,7 @@
 </div>
 
 <script type="module">
-    import init, { wasm_dccal_result, Chart } from './pkg/wasm_dcdc.js';
+    import init, { wasm_dccal_result } from './pkg/wasm_dcdc.js';
 
     async function main() {
       await init(); // Rust-WASMモジュールの初期化
@@ -117,30 +117,32 @@
       const vinInput = document.getElementById("vin");
       const voutInput = document.getElementById("vout");
       const ioutInput = document.getElementById("iout");
-      const fswRadios = document.querySelectorAll('input[name="fsw"]');
+      const fswInput = document.getElementById("fsw");
       const indInput = document.getElementById("ind");
-      const canvas = document.getElementById("canvas");
-      let dil_on, dil_off, intercept_on, intercept_off, period, ontime_cha;
 
       const dccal = () => {
         //入力値の数値変換
         const vin = parseFloat(vinInput.value) || 0;
         const vout = parseFloat(voutInput.value) || 0;
         const iout = parseFloat(ioutInput.value) || 0;
-
-        let fsw = 0;
-        fswRadios.forEach(radio => {
-            if (radio.checked) {
-                fsw = parseFloat(radio.value) * Math.pow(10, 3); // kHz → Hz に変換
-            }
-        });
-
+        const fsw = parseFloat(fswInput.value) * Math.pow(10, 3) || 0;
         const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
+
         const result = wasm_dccal_result(vin, vout, iout, fsw, ind);
-        //console.log("Duty Cycle:", result.duty);
+        console.log("Duty Cycle:", result.duty);
+        console.log("Period:", result.period);
+        console.log("On Time:", result.ontime);
+        console.log("dIL ON:", result.dil_on);
+        console.log("dIL OFF:", result.dil_off);
+        console.log("intercept ON:", result.intercept_on);
+        console.log("intercept OFF:", result.intercept_off);
+        console.log("Current Top:", result.current_top);
+        console.log("Current Bottom:", result.current_bottom);
         console.log([result.duty, result.period, result.ontime, result.dil_on, result.dil_off, result.intercept_on, result.intercept_off, result.current_top, result.current_bottom]);
+              
+        //const dutyOut = Math.round(result.duty * 100) / 100;
+        //duty.value = dutyOut*100;
        
-        //出力
         const dutyOut = (result.duty) * Math.pow(10, 2) || 0;
         duty.value = dutyOut.toFixed(1);
 
@@ -152,40 +154,52 @@
 
         const Current_rippleOut = (result.current_top - result.current_bottom )|| 0;
         Current_ripple.value = Current_rippleOut.toFixed(2);
-        
-        //for chart
-        dil_on = result.dil_on;
-        dil_off = result.dil_off;
-        intercept_on = result.intercept_on;
-        intercept_off = result.intercept_off;
-        ontime_cha = (result.ontime);
-        period = (result.period) * Math.pow(10, 6) || 0;
-
-        console.log("dil_on_chart:", dil_on);
-        console.log("dil_off_chart:", dil_off);
-        console.log("intercept_on:", intercept_on);
-        console.log("intercept_off:", intercept_off);
-        console.log("ontime_chart:", ontime_cha);
-        console.log("period_chart:", period);
-
-        //グラフ描写
-        Chart.coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, 3.0, "u");
         };
-
-        //イベントリスナー
+          
+        // イベントリスナー
         vinInput.addEventListener("input", dccal);
         voutInput.addEventListener("input", dccal);
         ioutInput.addEventListener("input", dccal);
+        fswInput.addEventListener("change", dccal);
         indInput.addEventListener("input", dccal);
-        
-        fswRadios.forEach(radio => {
-        radio.addEventListener("change", dccal);
+        }
+    main().catch(console.error);
+</script>
+
+<script type="module">
+    import init, { Charts } from './pkg/wasm_dcdc.js';
+
+    async function main() {
+        await init(); // Rust-WASMモジュールの初期化
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+        const form = document.getElementById("inputForm");
+
+        // 描画関数
+        function drawLine(a, b) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Canvasをクリア
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - linear_function(a, b, 0)); // Y軸を反転
+            ctx.lineTo(canvas.width, canvas.height - linear_function(a, b, canvas.width));
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+        }
+
+        // フォーム送信時の処理
+        form.addEventListener("submit", (event) => {
+            event.preventDefault(); // ページリロードを防止
+
+            const a = parseFloat(document.getElementById("slope").value); // 傾き
+            const b = parseFloat(document.getElementById("intercept").value); // 切片
+
+            drawLine(a, b); // 入力値で描画
         });
-        
-        dccal();
+
+        // 初期描画
+        drawLine(1, 0);
     }
 
-    main().catch(console.error);
+    main();
 </script>
 
 </body>
