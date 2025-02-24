@@ -27,68 +27,53 @@
 
 
 header{background: #fffafa;}
-.contentA{background: #b6baaeea;}
-.contentB{background: #b6cbe1;}
+.contentA{background: #ffffffea;}ßß
+.contentB{background: #ffffff;}
 footer{background: #ffffff;}
 
 /*flex box*/
 .main{
  display: flex;
  height: 70vh;
+ gap: 180px; /*ここ広げるとA,B&Cが被りません*/
 }
 
 .contentA{
     flex: 1;
     display: flex;
     align-items: flex-start;
-    width: 20%;
-    height: 500px;
+    width: 30%;
+    min-width: 320px;
+    max-width: 400px;
+    height: 300px;
     text-align:center;
     background: rgb(255, 255, 255);
-    margin-bottom:30px;
+    margin-bottom:10px;
     /*border: 2px solid rgb(0, 0, 0);*/
-    /*box-shadow : 0 0 0 1px rgb(246, 243, 243); /* 線の重なり太さ回避 */
+    /*box-shadow : 0 0 0 1px rgb(246, 243, 243); 線の重なり太さ回避 */
 }
 
-.check_fsw {
+/* fswを縦積みに
+    .check_fsw {
     display:block;
-  }
+  } */
 
 .right {
     flex: 2;
-    flex-direction: column; /* 縦方向に並べる */
+    display: flex;
+    flex-direction: column;
     width: 70%;
-  }
-
-.contentB{
-    flex: 1;
-    display: flex;
-    width: 100%;
-    height: 300px;
-    text-align:center;
-    background: rgb(255, 255, 255);
-    margin-bottom:30px;
-    /*border: 2px solid rgb(0, 0, 0);*/
-    /*box-shadow : 0 0 0 1px black; */
-}
-
-.contentC{
-    flex: 1;
-    display: flex;
-    width: 80%;
-    height: 300px;
-    align-items: flex-start;
-    text-align:center;
-    background: rgb(255, 255, 255);
-    margin-bottom:30px;
-    /*border: 2px solid rgb(0, 0, 0);*/
-    /*box-shadow : 0 0 0 1px black; */
+    gap: 10px;
 }
 
 /*入力box*/
 .table1{
     border-collapse: collapse; 
+    width: 100%;
     border: 1px solid #000;
+    font-size: 60%;
+    font-weight:  lighter;
+    white-space: nowrap; /* 折り返し禁止 */
 }
 
 .table1 td, .table1 th {
@@ -100,6 +85,9 @@ footer{background: #ffffff;}
 .table2{
     border-collapse: collapse; 
     border: 1px solid #000;
+    font-size: 60%;
+    font-weight:  lighter;
+    white-space: nowrap; /* 折り返し禁止 */
 }
 
 .table2 td, .table2 th {
@@ -114,63 +102,51 @@ input[type="number"].no-spin::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
 input[type="number"].no-spin {
   -moz-appearance: textfield; /* Firefox用 */
 }
 
-/*
-.tab-btn {
+/* タブ要素 */
+.tab-container {
+    max-width: 500px; /* タブとコンテンツの最大幅を500pxに固定 */
+    width: 100%; /* ブラウザの幅に応じて拡大 */
+}
+
+.tabs {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-.btn {
-    flex-basis: 30%;
-    text-align: center;
-}
-.btn a {
-    display: block;
-    position: relative;
-    font-size: 16px;
-    padding: 8px;
-    text-decoration: none;
-    line-height: 1.2;
-    color: #181716;
-    background-color: #fff;
+    justify-content: flex-start;ï
+    width: 100%; /* 親要素に合わせる */
+    border-bottom: 2px solid #ccc;
+  }
+  
+.tab-button {
+    flex: 1;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    padding: 5px 10px; /* ボタンの高さを縮小 */
     cursor: pointer;
-}
-.btn a.is-active {
-    background-color: #ececec;
-}
+    text-align: center;
+    font-size: 14px; /* フォントを小さく */
+    height: 30px; /* ボタンの高さを明示的に設定 */
+    line-height: 20px; /* テキストの中央揃え */
+    border-bottom: none;
+    margin: 0;
+  }
 
-
-.tab-contents-item {
+.tab-button:hover {
+    background-color: #ddd;
+  }
+  
+.tab-button.active {
+    background-color: rgb(224, 247, 250);
+    border-top: 2px solid hsl(0, 0%, 40%);
+    font-weight: bold;
+  }
+  
+.tab-content {
     display: none;
-    width: 100%;
-    height: 200px;
-    justify-content: center;
-}
-.tab-contents-item.is-active {
-    display: flex;
-    background-color: #ececec;
-
-}
-.tab-contents-item>p {
-    margin: auto;
-    height: 40px;
-    opacity: 0;
-}
-.tab-contents-item.is-active>p {
-  animation:  fadeinAnime 2s forwards;
-}
-
-@keyframes fadeinAnime{
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-}
-    */
+    padding: 0;  /* コンテンツ内の余白を削除 */
+    margin: 0;   /* コンテンツの外側の余白を削除 */
+  }
+  

@@ -172,10 +172,12 @@ function getDataViewMemory0() {
  * @param {number} iout
  * @param {number} fsw
  * @param {number} ind
+ * @param {number} cout
+ * @param {number} rfb2
  * @returns {WasmDcCalResult}
  */
-export function wasm_dccal_result(vin, vout, iout, fsw, ind) {
-    const ret = wasm.wasm_dccal_result(vin, vout, iout, fsw, ind);
+export function wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2) {
+    const ret = wasm.wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2);
     return WasmDcCalResult.__wrap(ret);
 }
 
@@ -411,6 +413,71 @@ export class WasmDcCalResult {
         wasm.__wbg_set_wasmdccalresult_intercept_off(this.__wbg_ptr, arg0);
     }
     /**
+     * @returns {number}
+     */
+    get ro() {
+        const ret = wasm.__wbg_get_wasmdccalresult_ro(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set ro(arg0) {
+        wasm.__wbg_set_wasmdccalresult_ro(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get rfb1() {
+        const ret = wasm.__wbg_get_wasmdccalresult_rfb1(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set rfb1(arg0) {
+        wasm.__wbg_set_wasmdccalresult_rfb1(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get fz() {
+        const ret = wasm.__wbg_get_wasmdccalresult_fz(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set fz(arg0) {
+        wasm.__wbg_set_wasmdccalresult_fz(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get cfb() {
+        const ret = wasm.__wbg_get_wasmdccalresult_cfb(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set cfb(arg0) {
+        wasm.__wbg_set_wasmdccalresult_cfb(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get dvout() {
+        const ret = wasm.__wbg_get_wasmdccalresult_dvout(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set dvout(arg0) {
+        wasm.__wbg_set_wasmdccalresult_dvout(this.__wbg_ptr, arg0);
+    }
+    /**
      * @param {number} duty
      * @param {number} period
      * @param {number} ontime
@@ -420,10 +487,15 @@ export class WasmDcCalResult {
      * @param {number} current_bottom
      * @param {number} intercept_on
      * @param {number} intercept_off
+     * @param {number} ro
+     * @param {number} rfb1
+     * @param {number} fz
+     * @param {number} cfb
+     * @param {number} dvout
      * @returns {WasmDcCalResult}
      */
-    static new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off) {
-        const ret = wasm.wasmdccalresult_new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off);
+    static new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off, ro, rfb1, fz, cfb, dvout) {
+        const ret = wasm.wasmdccalresult_new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off, ro, rfb1, fz, cfb, dvout);
         return WasmDcCalResult.__wrap(ret);
     }
 }

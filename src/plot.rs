@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::console;
 
 pub fn draw<T:Filter>(canvas:HtmlCanvasElement, c_current:T, period:f64, time:f64, unit_prefix:&str)->DrawResult<()>{
-    let font=("sans-serif",50.0).into_font();
+    let font=("sans-serif",5.0).into_font();
     let area=CanvasBackend::with_canvas_object(canvas).unwrap()
         .into_drawing_area();
     area.fill(&WHITE)?;
@@ -27,16 +27,16 @@ pub fn draw<T:Filter>(canvas:HtmlCanvasElement, c_current:T, period:f64, time:f6
     
     let mut chart=ChartBuilder::on(&area)
 /*      .caption("time", font) */
-        .x_label_area_size(400)
-        .y_label_area_size(400)
-        .margin(300)
+        .x_label_area_size(30)
+        .y_label_area_size(50)
+        .margin(15)
         .build_cartesian_2d(x_axis, y_axis)?;
     chart.configure_mesh()
         .x_labels(5)
         .y_labels(5)
         .x_desc(format!("time[{}s]",unit_prefix))
         .y_desc("Inductor_Current[A]")
-        .label_style(("sans-serif", 100).into_font())
+        .label_style(("sans-serif", 10).into_font())
         .x_label_formatter(&|x| format!("{:.2}", x))  // ★ 小数点3桁にフォーマット
         .y_label_formatter(&|y| format!("{:.2}", y)) 
         .draw()?;
@@ -47,15 +47,12 @@ pub fn draw<T:Filter>(canvas:HtmlCanvasElement, c_current:T, period:f64, time:f6
             let time_f64 = (i as f64) * (period / 1000.0); // ★ 1000 分割して小数ステップに
             let coord_value = Coord::new(time_f64, unit_prefix).get_value();
             let response = c_current.calc_time_response(coord_value);
-    
-            // ★ デバッグログ
-/*             console::log_1(&format!("time_value: {}, coord_value: {}, response: {}", time_f64, coord_value, response).into());
-     */
+            /* console::log_1(&format!("time_value: {}, coord_value: {}, response: {}", time_f64, coord_value, response).into());*/
             (time_f64, response)
         }).collect::<Vec<(f64, f64)>>(), 
-        &RED
+        &BLUE
     ))?;
-    
+
     area.present()?;
     Ok(())
 }

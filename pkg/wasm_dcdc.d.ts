@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-export function wasm_dccal_result(vin: number, vout: number, iout: number, fsw: number, ind: number): WasmDcCalResult;
+export function wasm_dccal_result(vin: number, vout: number, iout: number, fsw: number, ind: number, cout: number, rfb2: number): WasmDcCalResult;
 export class Chart {
   private constructor();
   free(): void;
@@ -15,7 +15,7 @@ export class Point {
 export class WasmDcCalResult {
   private constructor();
   free(): void;
-  static new(duty: number, period: number, ontime: number, dil_on: number, dil_off: number, current_top: number, current_bottom: number, intercept_on: number, intercept_off: number): WasmDcCalResult;
+  static new(duty: number, period: number, ontime: number, dil_on: number, dil_off: number, current_top: number, current_bottom: number, intercept_on: number, intercept_off: number, ro: number, rfb1: number, fz: number, cfb: number, dvout: number): WasmDcCalResult;
   duty: number;
   period: number;
   ontime: number;
@@ -25,6 +25,11 @@ export class WasmDcCalResult {
   current_bottom: number;
   intercept_on: number;
   intercept_off: number;
+  ro: number;
+  rfb1: number;
+  fz: number;
+  cfb: number;
+  dvout: number;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -52,8 +57,18 @@ export interface InitOutput {
   readonly __wbg_set_wasmdccalresult_intercept_on: (a: number, b: number) => void;
   readonly __wbg_get_wasmdccalresult_intercept_off: (a: number) => number;
   readonly __wbg_set_wasmdccalresult_intercept_off: (a: number, b: number) => void;
-  readonly wasmdccalresult_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
-  readonly wasm_dccal_result: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly __wbg_get_wasmdccalresult_ro: (a: number) => number;
+  readonly __wbg_set_wasmdccalresult_ro: (a: number, b: number) => void;
+  readonly __wbg_get_wasmdccalresult_rfb1: (a: number) => number;
+  readonly __wbg_set_wasmdccalresult_rfb1: (a: number, b: number) => void;
+  readonly __wbg_get_wasmdccalresult_fz: (a: number) => number;
+  readonly __wbg_set_wasmdccalresult_fz: (a: number, b: number) => void;
+  readonly __wbg_get_wasmdccalresult_cfb: (a: number) => number;
+  readonly __wbg_set_wasmdccalresult_cfb: (a: number, b: number) => void;
+  readonly __wbg_get_wasmdccalresult_dvout: (a: number) => number;
+  readonly __wbg_set_wasmdccalresult_dvout: (a: number, b: number) => void;
+  readonly wasmdccalresult_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => number;
+  readonly wasm_dccal_result: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
   readonly chart_coil_current: (a: any, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number];
   readonly __wbg_get_wasmdccalresult_duty: (a: number) => number;
   readonly __wbg_get_wasmdccalresult_period: (a: number) => number;
