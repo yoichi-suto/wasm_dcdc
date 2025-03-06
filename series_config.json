@@ -1,5 +1,6 @@
 {
     "S-19912/3": {
+        "config_img": "./img/S-199123.png",
         "config_vin": "operate 4V to 36V",
         "Vconfig_vin": 12,
         "config_iout": "operate under 0.6A",
@@ -18,6 +19,7 @@
     },
 
     "S-19914/5": {
+        "config_img": "./img/S-199145.png",
         "config_vin": "operate 4V to 36V",
         "Vconfig_vin": 12,
         "config_iout": "operate under 1.0A",

@@ -10,7 +10,7 @@ html, body {
     padding: 0px;
     width: 100vw;  /* 画面の横幅いっぱいに */
     height: 50px;  /* ヘッダーの高さを狭く */
-    background: rgb(255, 255, 255);  /* 背景色 */
+    background: rgb(234, 234, 234);  /* 背景色 */
     color: rgb(0, 0, 0);  /* 文字色 */
     display: flex;
     align-items: center;  /* 垂直方向中央寄せ */
@@ -155,4 +155,9 @@ footer {
   color: white;
   text-align: center;
   border-top: 1px solid #ffffff;
+
+  /* フレックスボックスを使って中央揃え */
+  display: flex;
+  justify-content: center; /* 水平方向の中央揃え */
+  align-items: center; /* 垂直方向の中央揃え */
 }

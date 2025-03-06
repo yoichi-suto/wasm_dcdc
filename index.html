@@ -10,13 +10,14 @@
 
 <body>
   <header>
-    <h2 class="heading-6">DC-DC Simulator (demo)</h2>
+    <h2 class="heading-6">Switching Regulators (DC-DC Converters) simulator / DEMO</h2>
   </header>
 </body>
 
 <br>
 
 <main>
+
   <body>
     <div class="main">
       <div class="contentA">
@@ -146,7 +147,8 @@
 
           <!-- タブ1: Schematic -->
           <div id="tab1" class="tab-content">
-            <img src="./img/test1.png" width="500" height="300">
+            <canvas id="canvas1" width="500" height="300" style="border:1px solid #000;"></canvas>
+            <img id="config_img" src="" alt="Config Image" style="display: none;">
           </div>
 
           <!-- タブ2: waveform -->
@@ -236,6 +238,32 @@
       });
     </script>
 
+    <!-- タブの初期読み込み設定 -->
+    <script>
+      function openCanvasTab(evt, tabName) {
+        // すべてのタブコンテンツを非表示にする
+        let tabContent = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabContent.length; i++) {
+          tabContent[i].style.display = "none";
+        }
+
+        // すべてのタブボタンの active クラスを削除
+        let tabButtons = document.getElementsByClassName("tab-button");
+        for (let i = 0; i < tabButtons.length; i++) {
+          tabButtons[i].classList.remove("active");
+        }
+
+        // 選択したタブを表示
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.classList.add("active");
+      }
+
+      // ページ読み込み時にデフォルトで `tab1` を表示
+      window.onload = function () {
+        document.querySelector(".tab-button").click(); // 最初のボタン (Schematic) をクリックする
+      };
+    </script>
+
     <!-- series_configの読み込み -->
     <script>
       async function loadSeriesData() {
@@ -243,6 +271,7 @@
         const seriesData = await response.json();
 
         let selectElement = document.getElementById("series-select");
+        let ImgElement = document.getElementById("config_img");
         let ControlElement = document.getElementById("config_control");
         let VinElement = document.getElementById("config_vin");
         let VinInput = document.getElementById("vin");
@@ -252,18 +281,50 @@
 
         function updateValues() {
           let selectedSeries = selectElement.value;
+          ImgElement.src = seriesData[selectedSeries].config_img;
           ControlElement.textContent = seriesData[selectedSeries].config_control;
           VinElement.textContent = seriesData[selectedSeries].config_vin;
           VinInput.value = seriesData[selectedSeries].Vconfig_vin;
           IoutElement.textContent = seriesData[selectedSeries].config_iout;
           IoutInput.value = seriesData[selectedSeries].Vconfig_iout;
           SsfmElement.textContent = seriesData[selectedSeries].config_ssfm;
+
+          drawImageOnCanvas();
         }
 
         selectElement.addEventListener("change", updateValues);
         updateValues(); // 初期化
       }
 
+      async function drawImageOnCanvas() {
+        const canvas = document.getElementById("canvas1");
+        const ctx = canvas.getContext("2d");
+        const img = document.getElementById("config_img");
+
+        img.onload = function () {
+          const imgAspect = img.width / img.height;
+          const canvasAspect = canvas.width / canvas.height;
+
+          let drawWidth, drawHeight, offsetX, offsetY;
+
+          if (imgAspect > canvasAspect) {
+            // 画像が横長の場合 → 横いっぱいにし、高さを調整
+            drawWidth = canvas.width;
+            drawHeight = canvas.width / imgAspect;
+            offsetX = 0;
+            offsetY = (canvas.height - drawHeight) / 2;
+          } else {
+            // 画像が縦長の場合 → 縦いっぱいにし、幅を調整
+            drawHeight = canvas.height;
+            drawWidth = canvas.height * imgAspect;
+            offsetX = (canvas.width - drawWidth) / 2;
+            offsetY = 0;
+          }
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        };
+      }
       loadSeriesData();
     </script>
 
@@ -426,22 +487,22 @@
             const rfb1 = parseFloat(rfb1Input.value) * Math.pow(10, 3) || 0;
             const rfb2 = parseFloat(rfb2Input.value) * Math.pow(10, 3) || 0;
 
-/*          console.log("ron:", ron);
-            console.log("rd:", rd);
-            console.log("tr:", tr);
-            console.log("tf:", tf);
-            console.log("tdd1:", tdd1);
-            console.log("tdd2:", tdd2);
-            console.log("Qg1:", Qg1);
-            console.log("Qg2:", Qg2);
-            console.log("vin:", vin);
-            console.log("vout:", vout);
-            console.log("iout:", iout);
-            console.log("fsw:", fsw);
-            console.log("ind:", ind);
-            console.log("rl:", rl);
-            console.log("rfb1:", rfb1);
-            console.log("rfb2:", rfb2); */
+            /*          console.log("ron:", ron);
+                        console.log("rd:", rd);
+                        console.log("tr:", tr);
+                        console.log("tf:", tf);
+                        console.log("tdd1:", tdd1);
+                        console.log("tdd2:", tdd2);
+                        console.log("Qg1:", Qg1);
+                        console.log("Qg2:", Qg2);
+                        console.log("vin:", vin);
+                        console.log("vout:", vout);
+                        console.log("iout:", iout);
+                        console.log("fsw:", fsw);
+                        console.log("ind:", ind);
+                        console.log("rl:", rl);
+                        console.log("rfb1:", rfb1);
+                        console.log("rfb2:", rfb2); */
 
             //calculate effiency
             const result_eff = wasm_eff_result(vin, vout, fsw, ind, rl, rfb1, rfb2,
@@ -450,8 +511,8 @@
             const xs = result_eff.get_xs();
             const ys = result_eff.get_ys();
 
-/*          console.log("xs:", xs);
-            console.log("ys:", ys); */
+            /*          console.log("xs:", xs);
+                        console.log("ys:", ys); */
 
             chart2(xs, ys, iout);
           }
