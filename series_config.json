@@ -1,0 +1,39 @@
+{
+    "S-19912/3": {
+        "config_vin": "operate 4V to 36V",
+        "Vconfig_vin": 12,
+        "config_iout": "operate under 0.6A",
+        "Vconfig_iout": 0.6,
+        "config_ssfm": "Enable",
+        "config_control": "S-19912=PWM, S-19913=PWM/PFM",
+        "config_ron": 0.3166,
+        "config_rd": 0.2404,
+        "config_ton": 0.08,
+        "config_tr": 0.000000002,
+        "config_tf": 0.000000002,
+        "config_tdd1": 0.000000007,
+        "config_tdd2": 0.000000007,
+        "config_Qg1" : 0.0000000007,
+        "config_Qg2" : 0.0000000011
+    },
+
+    "S-19914/5": {
+        "config_vin": "operate 4V to 36V",
+        "Vconfig_vin": 12,
+        "config_iout": "operate under 1.0A",
+        "Vconfig_iout": 1.0,
+        "config_ssfm": "Enable",
+        "config_control": "S-19914=PWM, S-19915=PWM/PFM",
+        "configc_ton": "set Ontime > 0.08us",
+        "config_ron": 0.3166,
+        "config_rd": 0.2404,
+        "config_ton": 0.08,
+        "config_tr": 0.000000002,
+        "config_tf": 0.000000002,
+        "config_tdd1": 0.000000007,
+        "config_tdd2": 0.000000007,
+        "config_Qg1" : 0.0000000007,
+        "config_Qg2" : 0.0000000011
+    }
+
+}

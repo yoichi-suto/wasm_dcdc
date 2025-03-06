@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="./style1.css">
+  <title>DC-DC simulator</title>
+</head>
+
+<body>
+  <header>
+    <h2 class="heading-6">DC-DC Simulator (demo)</h2>
+  </header>
+</body>
+
+<br>
+
+<main>
+  <body>
+    <div class="main">
+      <div class="contentA">
+        <table class="table1">
+          <tr>
+            <th scope="col">Series</th>
+            <th scope="col">
+              <select id="series-select" name="series" size="1">
+                <!--               <option value="S-19902/3">S-19902/19903</option>
+              <option value="S-19904/5">S-19904/19905</option> -->
+                <option value="S-19912/3">S-19912/19913</option>
+                <option value="S-19914/5">S-19914/19915</option>
+                <!-- ß -->
+                <!--config_values
+              "config_vin": operate Voltage
+              "config_iout": operate Current
+              "config_ssfm": SSFM Enable/Disable
+              "config_control": control option
+              "config_ron": HS FET on resistance
+              "config_rd": LS FET on resistance
+              "config_tr": 立ち上がり時間
+              "config_tf": 立ち下がり時間
+              "config_tdd1": ライズデッドタイム
+              "config_tdd2": フォールデッドタイム
+              "config_Qg1" : ハイサイドゲート電荷
+              "config_Qg2" : ハイサイドゲート電荷 -->
+              </select>
+            </th>
+            <th id=config_control>S-19912=PWM, S-19913=PWM/PFM</th>
+          </tr>
+
+          <tr>
+            <th colspan="3" style="background-color: #e0f7fa;">Condition</th>
+          </tr>
+
+          <tr>
+            <th>VIN[V]</th>
+            <td><input type="number" id="vin" value="12"></td>
+            <th id=config_vin>operate 4V to 36V</th>
+          </tr>
+
+          <tr>
+            <th>VOUT[V]</th>
+            <td><input type="number" id="vout" value="5"></td>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th>IOUT[A]</th>
+            <td><input type="number" id="iout" step="0.1"></td>
+            <th id=config_iout>operate under 0.6A</th>
+          </tr>
+
+          <tr>
+            <th>fsw</th>
+            <td>
+              <input type="radio" name="fsw" id="fsw_400" value="400" checked>400kHz
+              <label class="check_fsw" for="fsw_400"></label>
+
+              <input type="radio" name="fsw" id="fsw_2200" value="2200">2.2MHz
+              <label class="check_fsw" for="fsw_2200"></label>
+            </td>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th>SSFM</th>
+            <th id=config_ssfm>Enable</th>
+            <th>Spectrum spread</th>
+          </tr>
+
+          <tr>
+            <th colspan="3" style="background-color: #e0f7fa;">External Compornents</th>
+          </tr>
+
+          <tr>
+            <th>L[uH]</th>
+            <td><input type="number" id="ind" value="6.8"></td>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th>RL[mΩ]</th>
+            <td><input type="number" id="rl" value="1.0"></td>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th>Cout[uF]</th>
+            <td><input type="number" id="cout" value="10"></td>
+            <th>10uF≤Cout≤200uF is recommended</th>
+          </tr>
+
+          <tr>
+            <th>Creg[uF]</th>
+            <td><input type="number" id="creg" value="1" readonly disabled class="no-spin"></td>
+            <th>1uF is recommended</th>
+          </tr>
+
+          <tr>
+            <th>RFB1[kΩ]</th>
+            <td><input type="number" id="rfb1" value="84" readonly disabled class="no-spin"></td>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th>RFB2[kΩ]</th>
+            <td><input type="number" id="rfb2" value="15"></td>
+            <th>Approximately 15kΩ is recommended</th>
+          </tr>
+
+          <tr>
+            <th>Cfb[nF]</th>
+            <td><input type="number" id="cfb" value="" readonly disabled class="no-spin"></td>
+            <th>Recommended value</th>
+          </tr>
+        </table>
+      </div>
+
+      <div class="right">
+        <div class="tab-container">
+          <div class="tabs">
+            <button class="tab-button" onclick="openCanvasTab(event, 'tab1')">Schematic</button>
+            <button class="tab-button" onclick="openCanvasTab(event, 'tab2')">Waveform</button>
+            <button class="tab-button" onclick="openCanvasTab(event, 'tab3')">Efficiency</button>
+          </div>
+
+          <!-- タブ1: Schematic -->
+          <div id="tab1" class="tab-content">
+            <img src="./img/test1.png" width="500" height="300">
+          </div>
+
+          <!-- タブ2: waveform -->
+          <div id="tab2" class="tab-content">
+            <canvas id="canvas" width="500" height="300" style="border:1px solid #000;"></canvas>
+          </div>
+
+          <!-- タブ3: Efficiency -->
+          <div id="tab3" class="tab-content">
+            <canvas id="canvas2" width="500" height="300" style="border:1px solid #000;"></canvas>
+          </div>
+        </div>
+
+        <div class="contentC">
+          <table class="table2">
+
+            <tr>
+              <th colspan="3" style="background-color: #e0f7fa;">Operation Condition</th>
+            </tr>
+
+            <tr>
+              <th>Duty[%]</th>
+              <label for="duty"></label>
+              <td><input type="number" id="duty" readonly class="no-spin"></td>
+              <th></th>
+            </tr>
+
+            <tr>
+              <th>On time[us]</th>
+              <td><input type="number" id="ontime" readonly class="no-spin"></td>
+              <th id=config_ton>set On time > 0.08us</th>
+            </tr>
+
+            <tr>
+              <th>Peak Inductor Current[A]</th>
+              <td><input type="number" id="peak_current" readonly class="no-spin"></td>
+              <th></th>
+            </tr>
+
+            <tr>
+              <th>Current Ripple[A]</th>
+              <td><input type="number" id="Current_ripple" readonly class="no-spin"></td>
+              <th></th>
+            </tr>
+
+            <tr>
+              <th>ΔVout[mV]</th>
+              <td><input type="number" id="dvout" readonly class="no-spin"></td>
+              <th></th>
+            </tr>
+
+            <tr>
+              <th>fz[kHz]</th>
+              <td><input type="number" id="fz" readonly class="no-spin"></td>
+              <th></th>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- タブ切り替え -->
+    <script>
+      function openCanvasTab(evt, tabName) {
+        let i, tabcontent, tabbuttons;
+
+        // すべてのタブコンテンツを非表示にする
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        // すべてのタブボタンのアクティブクラスを削除
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+          tabbuttons[i].classList.remove("active");
+        }
+
+        // 選択されたタブを表示し、ボタンをアクティブにする
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.classList.add("active");
+      }
+
+      // 初期表示はタブ2（Graph 1 / canvas1）を開く
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementsByClassName("tab-button")[1].click(); // タブ2を開く
+      });
+    </script>
+
+    <!-- series_configの読み込み -->
+    <script>
+      async function loadSeriesData() {
+        const response = await fetch("series_config.json");
+        const seriesData = await response.json();
+
+        let selectElement = document.getElementById("series-select");
+        let ControlElement = document.getElementById("config_control");
+        let VinElement = document.getElementById("config_vin");
+        let VinInput = document.getElementById("vin");
+        let IoutElement = document.getElementById("config_iout");
+        let IoutInput = document.getElementById("iout");
+        let SsfmElement = document.getElementById("config_ssfm");
+
+        function updateValues() {
+          let selectedSeries = selectElement.value;
+          ControlElement.textContent = seriesData[selectedSeries].config_control;
+          VinElement.textContent = seriesData[selectedSeries].config_vin;
+          VinInput.value = seriesData[selectedSeries].Vconfig_vin;
+          IoutElement.textContent = seriesData[selectedSeries].config_iout;
+          IoutInput.value = seriesData[selectedSeries].Vconfig_iout;
+          SsfmElement.textContent = seriesData[selectedSeries].config_ssfm;
+        }
+
+        selectElement.addEventListener("change", updateValues);
+        updateValues(); // 初期化
+      }
+
+      loadSeriesData();
+    </script>
+
+    <!-- 動作条件の計算、およびwaveform chart描写 -->
+    <script type="module">
+      import init, { wasm_dccal_result, Chart } from './pkg/wasm_dcdc.js';
+
+      async function main() {
+        const start1 = performance.now();
+        await init(); // Rust-WASMモジュールの初期化
+
+        const vinInput = document.getElementById("vin");
+        const voutInput = document.getElementById("vout");
+        const ioutInput = document.getElementById("iout");
+        const fswRadios = document.querySelectorAll('input[name="fsw"]');
+        const indInput = document.getElementById("ind");
+        const coutInput = document.getElementById("cout");
+        const rfb2Input = document.getElementById("rfb2");
+        const canvas = document.getElementById("canvas");
+        let dil_on, dil_off, intercept_on, intercept_off, period, ontime_cha;
+
+        const dccal = () => {
+          //入力値の数値変換
+          const vin = parseFloat(vinInput.value) || 0;
+          const vout = parseFloat(voutInput.value) || 0;
+          const iout = parseFloat(ioutInput.value) || 0;
+          let fsw = 0;
+          fswRadios.forEach(radio => {
+            if (radio.checked) {
+              fsw = parseFloat(radio.value) * Math.pow(10, 3); // kHz → Hz に変換
+            }
+          });
+          const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
+          const cout = parseFloat(coutInput.value) || 0;
+          const rfb2 = parseFloat(rfb2Input.value) || 0;
+
+          const result = wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2);
+          /* console.log("Duty Cycle:", result.duty); */
+          /*         console.log([result.duty, result.period, result.ontime, result.dil_on, result.dil_off, result.intercept_on, result.intercept_off, result.current_top, result.current_bottom, result.ro, result.rfb1, result.fz, result.cfb, result.dvout]); */
+
+          //出力
+          const dutyOut = (result.duty) * Math.pow(10, 2) || 0;
+          duty.value = dutyOut.toFixed(1);
+
+          const ontimeOut = (result.ontime) * Math.pow(10, 6) || 0;
+          ontime.value = ontimeOut.toFixed(2);
+
+          const Current_topOut = (result.current_top) || 0;
+          peak_current.value = Current_topOut.toFixed(2);
+
+          const Current_rippleOut = (result.current_top - result.current_bottom) || 0;
+          Current_ripple.value = Current_rippleOut.toFixed(2);
+
+          const Rfb1 = (result.rfb1) || 0;
+          rfb1.value = Rfb1.toFixed(2);
+
+          const fzOut = (result.fz) * Math.pow(10, 3) || 0;
+          fz.value = fzOut.toFixed(2);
+
+          const cfbOut = (result.cfb) * Math.pow(10, 3) || 0;
+          cfb.value = cfbOut.toFixed(2);
+
+          const dvoutOut = (result.dvout) * Math.pow(10, 9) || 0;
+          dvout.value = dvoutOut.toFixed(2);
+
+          //for waveform chart
+          dil_on = result.dil_on;
+          dil_off = result.dil_off;
+          intercept_on = result.intercept_on;
+          intercept_off = result.intercept_off;
+          ontime_cha = (result.ontime);
+          period = (result.period) * Math.pow(10, 6) || 0;
+          /*      console.log("dil_on_chart:", dil_on);
+                  console.log("dil_off_chart:", dil_off);
+                  console.log("intercept_on:", intercept_on);
+                  console.log("intercept_off:", intercept_off);
+                  console.log("ontime_chart:", ontime_cha);
+                  console.log("period_chart:", period); */
+          Chart.coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, 3.0, "u");
+        };
+
+        /* イベントリスナー */
+        vinInput.addEventListener("input", dccal);
+        voutInput.addEventListener("input", dccal);
+        ioutInput.addEventListener("input", dccal);
+        indInput.addEventListener("input", dccal);
+        coutInput.addEventListener("input", dccal);
+        rfb2Input.addEventListener("input", dccal);
+
+        fswRadios.forEach(radio => {
+          radio.addEventListener("change", dccal);
+        });
+
+        dccal();
+        const end1 = performance.now();
+        console.log("time1:", end1 - start1);
+      }
+
+      main().catch(console.error);
+
+
+    </script>
+
+    <!-- effiency cal-->
+    <script type="module">
+      import init, { wasm_eff_result, chart2 } from './pkg/wasm_dcdc.js';
+      async function loadSeriesData() {
+        try {
+          const start2 = performance.now();
+          await init(); // WebAssembly モジュールを初期化
+
+          //internal config values
+          const response = await fetch("series_config.json");
+          const seriesData = await response.json();
+
+          const selectElement = document.getElementById("series-select");
+          const RonElement = document.getElementById("config_ron");
+          const RdElement = document.getElementById("config_rd");
+          const trElement = document.getElementById("config_tr");
+          const tfElement = document.getElementById("config_tf");
+          const tdd1Element = document.getElementById("config_tdd1");
+          const tdd2Element = document.getElementById("config_tdd2");
+          const Qg1Element = document.getElementById("config_Qg1");
+          const Qg2Element = document.getElementById("config_Qg2");
+
+          //condition, external components
+          const vinInput = document.getElementById("vin");
+          const voutInput = document.getElementById("vout");
+          const ioutInput = document.getElementById("iout");
+          let fswRadios = document.querySelectorAll('input[name="fsw"]');
+          const indInput = document.getElementById("ind");
+          const rlInput = document.getElementById("rl");
+          const coutInput = document.getElementById("cout");
+          const rfb1Input = document.getElementById("rfb1");
+          const rfb2Input = document.getElementById("rfb2");
+
+          function updateValues() {
+            const selectedSeries = selectElement.value;
+            const ron = seriesData[selectedSeries]?.config_ron || 0.3166;
+            const rd = seriesData[selectedSeries]?.config_rd || 0.545;
+            const tr = seriesData[selectedSeries]?.config_tr || 0.1;
+            const tf = seriesData[selectedSeries]?.config_tf || 0.1;
+            const tdd1 = seriesData[selectedSeries]?.config_tdd1 || 0.1;
+            const tdd2 = seriesData[selectedSeries]?.config_tdd2 || 0.1;
+            const qg1 = seriesData[selectedSeries]?.config_Qg1 || 0.1;
+            const qg2 = seriesData[selectedSeries]?.config_Qg2 || 0.1;
+            const vin = parseFloat(vinInput.value) || 0;
+            const vout = parseFloat(voutInput.value) || 0;
+            const iout = parseFloat(ioutInput.value) || 0;
+
+            let fsw = 0;
+            fswRadios.forEach(radio => {
+              if (radio.checked) {
+                fsw = parseFloat(radio.value) * Math.pow(10, 3);
+              }
+            });
+
+            const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
+            const rl = parseFloat(rlInput.value) * Math.pow(10, -3) || 0;
+            const rfb1 = parseFloat(rfb1Input.value) * Math.pow(10, 3) || 0;
+            const rfb2 = parseFloat(rfb2Input.value) * Math.pow(10, 3) || 0;
+
+/*          console.log("ron:", ron);
+            console.log("rd:", rd);
+            console.log("tr:", tr);
+            console.log("tf:", tf);
+            console.log("tdd1:", tdd1);
+            console.log("tdd2:", tdd2);
+            console.log("Qg1:", Qg1);
+            console.log("Qg2:", Qg2);
+            console.log("vin:", vin);
+            console.log("vout:", vout);
+            console.log("iout:", iout);
+            console.log("fsw:", fsw);
+            console.log("ind:", ind);
+            console.log("rl:", rl);
+            console.log("rfb1:", rfb1);
+            console.log("rfb2:", rfb2); */
+
+            //calculate effiency
+            const result_eff = wasm_eff_result(vin, vout, fsw, ind, rl, rfb1, rfb2,
+              ron, rd, tr, tf, tdd1, tdd2, qg1, qg2);
+
+            const xs = result_eff.get_xs();
+            const ys = result_eff.get_ys();
+
+/*          console.log("xs:", xs);
+            console.log("ys:", ys); */
+
+            chart2(xs, ys, iout);
+          }
+
+          // イベントリスナー
+          selectElement.addEventListener("change", updateValues);
+          vinInput.addEventListener("input", updateValues);
+          voutInput.addEventListener("input", updateValues);
+          fswRadios.forEach(radio => { radio.addEventListener("change", updateValues); });
+          indInput.addEventListener("input", updateValues);
+          rlInput.addEventListener("input", updateValues);
+          rfb2Input.addEventListener("input", updateValues);
+          updateValues();
+
+          const end2 = performance.now();
+          console.log("time2:", end2 - start2);
+        } catch (error) {
+          console.error("Error loading series data:", error);
+        }
+      }
+      document.addEventListener("DOMContentLoaded", loadSeriesData);
+    </script>
+</main>
+
+<footer>
+  <p>ABLIC.inc 2025 / DC-DC Simulator rev0.1.0</p>
+</footer>
+
+</body>
+
+</html>
