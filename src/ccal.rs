@@ -13,8 +13,8 @@ fn heaviside(x: f64) -> f64 {
 }
 
 impl Filter for CCurrent{
-    fn calc_time_response(&self, time:f64)->f64 {
-            (self.dil_on * time + self.intercept_on) * (1.0-heaviside(time-self.ontime_cha)) + (self.dil_off * time + self.intercept_off) * heaviside(time-self.ontime_cha)
+    fn calc_time_response(&self, _time:f64)->f64 {
+            (self.dil_on * _time + self.intercept_on) * (1.0-heaviside(_time-self.ontime_cha)) + (self.dil_off * _time + self.intercept_off) * heaviside(_time-self.ontime_cha)
     }
 }
 

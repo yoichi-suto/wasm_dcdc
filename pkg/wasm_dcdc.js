@@ -172,10 +172,12 @@ function getDataViewMemory0() {
  * @param {number} iout
  * @param {number} fsw
  * @param {number} ind
+ * @param {number} cout
+ * @param {number} rfb2
  * @returns {WasmDcCalResult}
  */
-export function wasm_dccal_result(vin, vout, iout, fsw, ind) {
-    const ret = wasm.wasm_dccal_result(vin, vout, iout, fsw, ind);
+export function wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2) {
+    const ret = wasm.wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2);
     return WasmDcCalResult.__wrap(ret);
 }
 
@@ -183,6 +185,62 @@ function takeFromExternrefTable0(idx) {
     const value = wasm.__wbindgen_export_2.get(idx);
     wasm.__externref_table_dealloc(idx);
     return value;
+}
+
+let cachedFloat64ArrayMemory0 = null;
+
+function getFloat64ArrayMemory0() {
+    if (cachedFloat64ArrayMemory0 === null || cachedFloat64ArrayMemory0.byteLength === 0) {
+        cachedFloat64ArrayMemory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64ArrayMemory0;
+}
+
+function passArrayF64ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 8, 8) >>> 0;
+    getFloat64ArrayMemory0().set(arg, ptr / 8);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
+function getArrayF64FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getFloat64ArrayMemory0().subarray(ptr / 8, ptr / 8 + len);
+}
+/**
+ * @param {number} vin
+ * @param {number} vout
+ * @param {number} fsw
+ * @param {number} ind
+ * @param {number} rl
+ * @param {number} rfb1
+ * @param {number} rfb2
+ * @param {number} ron
+ * @param {number} rd
+ * @param {number} tr
+ * @param {number} tf
+ * @param {number} tdd1
+ * @param {number} tdd2
+ * @param {number} qg1
+ * @param {number} qg2
+ * @returns {WasmEffCalResult}
+ */
+export function wasm_eff_result(vin, vout, fsw, ind, rl, rfb1, rfb2, ron, rd, tr, tf, tdd1, tdd2, qg1, qg2) {
+    const ret = wasm.wasm_eff_result(vin, vout, fsw, ind, rl, rfb1, rfb2, ron, rd, tr, tf, tdd1, tdd2, qg1, qg2);
+    return WasmEffCalResult.__wrap(ret);
+}
+
+/**
+ * @param {Float64Array} xs
+ * @param {Float64Array} ys
+ * @param {number} iout
+ */
+export function chart2(xs, ys, iout) {
+    const ptr0 = passArrayF64ToWasm0(xs, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArrayF64ToWasm0(ys, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    wasm.chart2(ptr0, len0, ptr1, len1, iout);
 }
 
 const ChartFinalization = (typeof FinalizationRegistry === 'undefined')
@@ -210,13 +268,13 @@ export class Chart {
      * @param {number} intercept_off
      * @param {number} ontime_cha
      * @param {number} period
-     * @param {number} time
+     * @param {number} _time
      * @param {string} unit_prefix
      */
-    static coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, time, unit_prefix) {
+    static coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, _time, unit_prefix) {
         const ptr0 = passStringToWasm0(unit_prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.chart_coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, time, ptr0, len0);
+        const ret = wasm.chart_coil_current(canvas, dil_on, dil_off, intercept_on, intercept_off, ontime_cha, period, _time, ptr0, len0);
         if (ret[1]) {
             throw takeFromExternrefTable0(ret[0]);
         }
@@ -411,6 +469,71 @@ export class WasmDcCalResult {
         wasm.__wbg_set_wasmdccalresult_intercept_off(this.__wbg_ptr, arg0);
     }
     /**
+     * @returns {number}
+     */
+    get ro() {
+        const ret = wasm.__wbg_get_wasmdccalresult_ro(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set ro(arg0) {
+        wasm.__wbg_set_wasmdccalresult_ro(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get rfb1() {
+        const ret = wasm.__wbg_get_wasmdccalresult_rfb1(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set rfb1(arg0) {
+        wasm.__wbg_set_wasmdccalresult_rfb1(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get fz() {
+        const ret = wasm.__wbg_get_wasmdccalresult_fz(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set fz(arg0) {
+        wasm.__wbg_set_wasmdccalresult_fz(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get cfb() {
+        const ret = wasm.__wbg_get_wasmdccalresult_cfb(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set cfb(arg0) {
+        wasm.__wbg_set_wasmdccalresult_cfb(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get dvout() {
+        const ret = wasm.__wbg_get_wasmdccalresult_dvout(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set dvout(arg0) {
+        wasm.__wbg_set_wasmdccalresult_dvout(this.__wbg_ptr, arg0);
+    }
+    /**
      * @param {number} duty
      * @param {number} period
      * @param {number} ontime
@@ -420,11 +543,75 @@ export class WasmDcCalResult {
      * @param {number} current_bottom
      * @param {number} intercept_on
      * @param {number} intercept_off
+     * @param {number} ro
+     * @param {number} rfb1
+     * @param {number} fz
+     * @param {number} cfb
+     * @param {number} dvout
      * @returns {WasmDcCalResult}
      */
-    static new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off) {
-        const ret = wasm.wasmdccalresult_new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off);
+    static new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off, ro, rfb1, fz, cfb, dvout) {
+        const ret = wasm.wasmdccalresult_new(duty, period, ontime, dil_on, dil_off, current_top, current_bottom, intercept_on, intercept_off, ro, rfb1, fz, cfb, dvout);
         return WasmDcCalResult.__wrap(ret);
+    }
+}
+
+const WasmEffCalResultFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_wasmeffcalresult_free(ptr >>> 0, 1));
+
+export class WasmEffCalResult {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(WasmEffCalResult.prototype);
+        obj.__wbg_ptr = ptr;
+        WasmEffCalResultFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        WasmEffCalResultFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_wasmeffcalresult_free(ptr, 0);
+    }
+    /**
+     * @param {Float64Array} xs
+     * @param {Float64Array} ys
+     */
+    constructor(xs, ys) {
+        const ptr0 = passArrayF64ToWasm0(xs, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArrayF64ToWasm0(ys, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmeffcalresult_new(ptr0, len0, ptr1, len1);
+        this.__wbg_ptr = ret >>> 0;
+        WasmEffCalResultFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * @returns {Float64Array}
+     */
+    get_xs() {
+        const ret = wasm.wasmeffcalresult_get_xs(this.__wbg_ptr);
+        var v1 = getArrayF64FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 8, 8);
+        return v1;
+    }
+    /**
+     * @returns {Float64Array}
+     */
+    get_ys() {
+        const ret = wasm.wasmeffcalresult_get_ys(this.__wbg_ptr);
+        var v1 = getArrayF64FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 8, 8);
+        return v1;
     }
 }
 
@@ -500,6 +687,10 @@ function __wbg_get_imports() {
         const ret = arg0.getContext(getStringFromWasm0(arg1, arg2));
         return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
     }, arguments) };
+    imports.wbg.__wbg_getElementById_f827f0d6648718a8 = function(arg0, arg1, arg2) {
+        const ret = arg0.getElementById(getStringFromWasm0(arg1, arg2));
+        return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+    };
     imports.wbg.__wbg_height_838cee19ba8597db = function(arg0) {
         const ret = arg0.height;
         return ret;
@@ -508,6 +699,16 @@ function __wbg_get_imports() {
         let result;
         try {
             result = arg0 instanceof CanvasRenderingContext2D;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
+    imports.wbg.__wbg_instanceof_HtmlCanvasElement_2ea67072a7624ac5 = function(arg0) {
+        let result;
+        try {
+            result = arg0 instanceof HTMLCanvasElement;
         } catch (_) {
             result = false;
         }
@@ -608,6 +809,9 @@ function __wbg_get_imports() {
         const ret = JSON.stringify(arg0);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_strokeRect_bfa0a2d3cd838033 = function(arg0, arg1, arg2, arg3, arg4) {
+        arg0.strokeRect(arg1, arg2, arg3, arg4);
+    };
     imports.wbg.__wbg_stroke_c8939d3873477ffa = function(arg0) {
         arg0.stroke();
     };
@@ -666,6 +870,7 @@ function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
     cachedDataViewMemory0 = null;
+    cachedFloat64ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
 
 
