@@ -26,11 +26,9 @@
             <th scope="col">Series</th>
             <th scope="col">
               <select id="series-select" name="series" size="1">
-                <!--               <option value="S-19902/3">S-19902/19903</option>
-              <option value="S-19904/5">S-19904/19905</option> -->
                 <option value="S-19912/3">S-19912/19913</option>
                 <option value="S-19914/5">S-19914/19915</option>
-                <!-- ß -->
+                <option value="S-19952/3">S-19952/19953</option>
                 <!--config_values
               "config_vin": operate Voltage
               "config_iout": operate Current
@@ -54,19 +52,19 @@
           </tr>
 
           <tr>
-            <th>VIN[V]</th>
+            <th>Vin[V]</th>
             <td><input type="number" id="vin" value="12"></td>
             <th id=config_vin>operate 4V to 36V</th>
           </tr>
 
           <tr>
-            <th>VOUT[V]</th>
+            <th>Vout[V]</th>
             <td><input type="number" id="vout" value="5"></td>
             <th></th>
           </tr>
 
           <tr>
-            <th>IOUT[A]</th>
+            <th>Iout[A]</th>
             <td><input type="number" id="iout" step="0.1"></td>
             <th id=config_iout>operate under 0.6A</th>
           </tr>
@@ -74,11 +72,16 @@
           <tr>
             <th>fsw</th>
             <td>
-              <input type="radio" name="fsw" id="fsw_400" value="400" checked>400kHz
-              <label class="check_fsw" for="fsw_400"></label>
+              <div id="fswOption"> <!-- //classは縦積み時に使用 -->
+                <input type="radio" name="fsw" id="fsw_400" value="400">
+                <label class="check_fsw" for="fsw_400">400kHz</label>
 
-              <input type="radio" name="fsw" id="fsw_2200" value="2200">2.2MHz
-              <label class="check_fsw" for="fsw_2200"></label>
+                <input type="radio" name="fsw" id="fsw_1000" value="1000">
+                <label class="check_fsw" for="fsw_1000">1.0MHz</label>
+
+                <input type="radio" name="fsw" id="fsw_2200" value="2200">
+                <label class="check_fsw" for="fsw_2200">2.2MHz</label>
+              </div>
             </td>
             <th></th>
           </tr>
@@ -108,7 +111,7 @@
           <tr>
             <th>Cout[uF]</th>
             <td><input type="number" id="cout" value="10"></td>
-            <th>10uF≤Cout≤200uF is recommended</th>
+            <th id=config_cout>10uF≤Cout≤200uF is recommended</th>
           </tr>
 
           <tr>
@@ -117,23 +120,30 @@
             <th>1uF is recommended</th>
           </tr>
 
-          <tr>
-            <th>RFB1[kΩ]</th>
+          <tr id="rfb1-row">
+            <th>Rfb1[kΩ]</th>
             <td><input type="number" id="rfb1" value="84" readonly disabled class="no-spin"></td>
             <th></th>
           </tr>
 
-          <tr>
-            <th>RFB2[kΩ]</th>
+          <tr id="rfb2-row">
+            <th>Rfb2[kΩ]</th>
             <td><input type="number" id="rfb2" value="15"></td>
-            <th>Approximately 15kΩ is recommended</th>
+            <th id=config_rfb2>Approximately 15kΩ is recommended</th>
           </tr>
 
-          <tr>
+          <tr id="cfb-row">
             <th>Cfb[nF]</th>
-            <td><input type="number" id="cfb" value="" readonly disabled class="no-spin"></td>
+            <td><input type="number" id="cfb" value="0.1" readonly disabled class="no-spin"></td>
             <th>Recommended value</th>
           </tr>
+
+          <tr id="rpg-row">
+            <th>Rpg[Ω]</th>
+            <td><input type="number" id="rpg" value="0.1"></td>
+            <th id=config_rpg>Approximately 15kΩ is recommended</th>
+          </tr>
+
         </table>
       </div>
 
@@ -210,6 +220,7 @@
       </div>
     </div>
 
+    <!-- ////////////////////////////////////////// -->
     <!-- タブ切り替え -->
     <script>
       function openCanvasTab(evt, tabName) {
@@ -270,32 +281,105 @@
         const response = await fetch("series_config.json");
         const seriesData = await response.json();
 
-        let selectElement = document.getElementById("series-select");
-        let ImgElement = document.getElementById("config_img");
-        let ControlElement = document.getElementById("config_control");
-        let VinElement = document.getElementById("config_vin");
-        let VinInput = document.getElementById("vin");
-        let IoutElement = document.getElementById("config_iout");
-        let IoutInput = document.getElementById("iout");
-        let SsfmElement = document.getElementById("config_ssfm");
+        //表に反映
+        const selectElement = document.getElementById("series-select");
+        const ImgElement = document.getElementById("config_img"); //imgパス
+        const ControlElement = document.getElementById("config_control");
+        const VinElement = document.getElementById("config_vin"); //vin範囲備考
+        const VinInput = document.getElementById("vin"); //vin typ値
+        const VoutInput = document.getElementById("vout"); //vout typ値
+        const IoutElement = document.getElementById("config_iout"); //iout範囲備考
+        const IoutInput = document.getElementById("iout"); //Iout typ値
+        const SsfmElement = document.getElementById("config_ssfm");
+        const VcoutmElement = document.getElementById("cout");
+        const coutmElement = document.getElementById("config_cout");
+        const Vrfb2Element = document.getElementById("rfb2");
+        const rfb2Element = document.getElementById("config_rfb2");
 
+        //jsonから取得
         function updateValues() {
           let selectedSeries = selectElement.value;
+          const seriesConfig = seriesData[selectedSeries];
           ImgElement.src = seriesData[selectedSeries].config_img;
           ControlElement.textContent = seriesData[selectedSeries].config_control;
-          VinElement.textContent = seriesData[selectedSeries].config_vin;
-          VinInput.value = seriesData[selectedSeries].Vconfig_vin;
+          VinElement.textContent = seriesData[selectedSeries].config_vin; //vin範囲
+          VinInput.value = seriesData[selectedSeries].Vconfig_vin_t; //vin typ値
+          VoutInput.value = seriesData[selectedSeries].Vconfig_vout_t; //vin typ値
           IoutElement.textContent = seriesData[selectedSeries].config_iout;
           IoutInput.value = seriesData[selectedSeries].Vconfig_iout;
           SsfmElement.textContent = seriesData[selectedSeries].config_ssfm;
-
+          VcoutmElement.value = seriesData[selectedSeries].Vconfig_cout;
+          coutmElement.textContent = seriesData[selectedSeries].config_cout;
+          Vrfb2Element.value = seriesData[selectedSeries].Vconfig_rfb2;
+          rfb2Element.textContent = seriesData[selectedSeries].config_rfb2;
           drawImageOnCanvas();
+
+          //rowの表示、非表示
+          const rfb1Row = document.getElementById("rfb1-row");
+          const rfb2Row = document.getElementById("rfb2-row");
+          const cfbRow = document.getElementById("cfb-row");
+          const rpgRow = document.getElementById("rpg-row");
+
+          //rfb2が存在しない場合、fb系非表示
+          if (!seriesConfig.config_rfb2) {
+            rfb1Row.style.display = "none";
+            rfb2Row.style.display = "none";
+            cfbRow.style.display = "none";
+          } else {
+            rfb1Row.style.display = "table-row";
+            rfb2Row.style.display = "table-row";
+            cfbRow.style.display = "table-row";
+          }
+
+          //Rpg
+          if (!seriesConfig.config_rpg) {
+            rpgRow.style.display = "none";
+          } else {
+            rpgRow.style.display = "table-row"; 
+          }
+
+          updatefsw(); // fswラジオボタンの状態も更新
         }
 
-        selectElement.addEventListener("change", updateValues);
-        updateValues(); // 初期化
+        //fswラジオボタンの再描写
+        function updatefsw() {
+          const selectedSeries = selectElement.value;
+          const seriesConfig = seriesData[selectedSeries];
+
+          const fswValues = {
+            "fsw_400": { value: seriesConfig.Vconfig_fsw_400, label: seriesConfig.config_fsw_400 },
+            "fsw_1000": { value: seriesConfig.Vconfig_fsw_1000, label: seriesConfig.config_fsw_1000 },
+            "fsw_2200": { value: seriesConfig.Vconfig_fsw_2200, label: seriesConfig.config_fsw_2200 }
+          };
+
+          //json側に設定がなければ表示されません
+          Object.keys(fswValues).forEach(id => {
+            const input = document.getElementById(id);
+            const label = document.querySelector(`label[for=${id}]`);
+
+            if (fswValues[id].value !== undefined) {
+              input.value = fswValues[id].value;
+              label.textContent = fswValues[id].label;
+              input.style.display = "inline"; // 表示
+              label.style.display = "inline"; // ラベルも表示
+            } else {
+              input.style.display = "none"; // 非表示
+              label.style.display = "none"; // ラベルも非表示
+            }
+          });
+        }
+        // ページロード時の初期化
+        selectElement.addEventListener("change", () => {
+          updateValues();
+          updatefsw();
+        });
+
+        // 初回実行時に `updateValues()` の後に `updatefsw()` を呼ぶ
+        updatefsw();
+        updateValues();
       }
 
+      //sheetの画像をcanvasに描写
       async function drawImageOnCanvas() {
         const canvas = document.getElementById("canvas1");
         const ctx = canvas.getContext("2d");
@@ -336,6 +420,12 @@
         const start1 = performance.now();
         await init(); // Rust-WASMモジュールの初期化
 
+        //config values
+        const response = await fetch("series_config.json");
+        const seriesData = await response.json();
+        const selectElement = document.getElementById("series-select");
+
+        //comment box 取得
         const vinInput = document.getElementById("vin");
         const voutInput = document.getElementById("vout");
         const ioutInput = document.getElementById("iout");
@@ -348,18 +438,57 @@
 
         const dccal = () => {
           //入力値の数値変換
+          const selectedSeries = selectElement.value;
+          const vinConfig_m = seriesData[selectedSeries]?.Vconfig_vin_m || 0;
+          const ioutConfig = seriesData[selectedSeries]?.Vconfig_iout || 0;
+          const tonConfig = seriesData[selectedSeries]?.config_ton || 0;
           const vin = parseFloat(vinInput.value) || 0;
           const vout = parseFloat(voutInput.value) || 0;
           const iout = parseFloat(ioutInput.value) || 0;
+
           let fsw = 0;
           fswRadios.forEach(radio => {
             if (radio.checked) {
               fsw = parseFloat(radio.value) * Math.pow(10, 3); // kHz → Hz に変換
             }
           });
+
           const ind = parseFloat(indInput.value) * Math.pow(10, -6) || 0;
           const cout = parseFloat(coutInput.value) || 0;
           const rfb2 = parseFloat(rfb2Input.value) || 0;
+          /* 
+                    console.log("vin:", vin);
+                    console.log("vinm:", vinConfig_m);
+                    console.log("ioutm:", ioutConfig); */
+
+          //アラート
+          if (vin < vout) {
+            alert("Set Vout < Vin");
+            // 入力ボックスを赤くする
+            vinInput.classList.add("input-error");
+            voutInput.classList.add("input-error");
+            return;
+          } else {
+            // エラーがなければ元の状態に戻す
+            vinInput.classList.remove("input-error");
+            voutInput.classList.remove("input-error");
+          }
+
+          if (vinConfig_m < vin) {
+            alert("Set Vin < Operating input voltage (max)");
+            vinInput.classList.add("input-error");
+            return;
+          } else {
+            vinInput.classList.remove("input-error");
+          }
+
+          if (ioutConfig < iout) {
+            alert("Set Iout < Output current");
+            ioutInput.classList.add("input-error");
+            return;
+          } else {
+            ioutInput.classList.remove("input-error");
+          }
 
           const result = wasm_dccal_result(vin, vout, iout, fsw, ind, cout, rfb2);
           /* console.log("Duty Cycle:", result.duty); */
@@ -390,6 +519,15 @@
           const dvoutOut = (result.dvout) * Math.pow(10, 9) || 0;
           dvout.value = dvoutOut.toFixed(2);
 
+          //アラート
+          if (ontimeOut <= tonConfig) {
+            alert("Set On time =< Minimum ON time");
+            ontime.classList.add("input-error");
+            return;
+          } else {
+            ontime.classList.remove("input-error");
+          }
+
           //for waveform chart
           dil_on = result.dil_on;
           dil_off = result.dil_off;
@@ -407,12 +545,12 @@
         };
 
         /* イベントリスナー */
-        vinInput.addEventListener("input", dccal);
-        voutInput.addEventListener("input", dccal);
-        ioutInput.addEventListener("input", dccal);
-        indInput.addEventListener("input", dccal);
-        coutInput.addEventListener("input", dccal);
-        rfb2Input.addEventListener("input", dccal);
+        vinInput.addEventListener("change", dccal);
+        voutInput.addEventListener("change", dccal);
+        ioutInput.addEventListener("change", dccal);
+        indInput.addEventListener("change", dccal);
+        coutInput.addEventListener("change", dccal);
+        rfb2Input.addEventListener("change", dccal);
 
         fswRadios.forEach(radio => {
           radio.addEventListener("change", dccal);
@@ -424,8 +562,6 @@
       }
 
       main().catch(console.error);
-
-
     </script>
 
     <!-- effiency cal-->
@@ -519,12 +655,12 @@
 
           // イベントリスナー
           selectElement.addEventListener("change", updateValues);
-          vinInput.addEventListener("input", updateValues);
-          voutInput.addEventListener("input", updateValues);
+          vinInput.addEventListener("change", updateValues);
+          voutInput.addEventListener("change", updateValues);
           fswRadios.forEach(radio => { radio.addEventListener("change", updateValues); });
-          indInput.addEventListener("input", updateValues);
-          rlInput.addEventListener("input", updateValues);
-          rfb2Input.addEventListener("input", updateValues);
+          indInput.addEventListener("change", updateValues);
+          rlInput.addEventListener("change", updateValues);
+          rfb2Input.addEventListener("change", updateValues);
           updateValues();
 
           const end2 = performance.now();
